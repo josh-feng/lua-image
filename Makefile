@@ -1,3 +1,7 @@
+# signatures
+MD5 = $(shell cat *cpp *hpp | md5sum | cut -d' ' -f1)
+
+TARGET = png
 ########################################################################
 TAG = $(shell whoami)
 
@@ -22,6 +26,7 @@ endif
 INCDIR = -I/usr/include -I/usr/include/lua$(LUA_V)
 LIBDIR = -L/usr/lib
 LIBS = -lpng
+
 ########################################################################
 default: build
 
@@ -36,7 +41,7 @@ default: build
 # all: $(TARGET)
 #    $(LINK) -o $(TARGET) $(OBJS) $(LDSTATIC)
 
-$(TARGET): $(OBJS)
+# $(TARGET): $(OBJS)
 
 where:
 	@echo "OS = "$(OS)
@@ -51,7 +56,6 @@ where:
 	@echo "OBJS = "$(OBJS)
 
 ########################################################################
-
 LINK = $(CXX)
 
 SRCS ?= $(wildcard *.c)
@@ -59,6 +63,8 @@ OBJS ?= $(SRCS:.c=.o)
 
 CPPSRCS ?= $(wildcard *.cpp)
 CPPOBJS ?= $(CPPSRCS:.cpp=.o)
+
+AOJ = $(OBJS) $(CPPOBJS)
 
 # C/C++ common options
 OPT += -O2
@@ -77,7 +83,6 @@ OPT += -Wdisabled-optimization
 endif
 OPT +=  $(INCDIR)
 
-
 # C only options
 COPT = $(OPT)
 COPT += -std=gnu99
@@ -95,3 +100,21 @@ CXXOPT = $(OPT)
 override CXXFLAGS = $(CXXOPT) $(DOPT)
 override LDFLAGS =
 
+########################################################################
+build: $(OBJS) $(CPPOBJS)
+
+install uninstall:
+	$(CXX) -shared -o $(TARGET).so $(AOJ) $(LIBDIR) $(LDFLAGS) $(LIBS)
+
+clean:
+	rm -f $(TARGET).symbols $(TARGET).so 2> /dev/null
+
+symbols: build
+	@objdump -T $(TARGET).so > $(TARGET).symbols
+
+# docs:
+#     @cd ../doc;  $(MAKE)
+
+cleanall: clean
+
+backup: clean
