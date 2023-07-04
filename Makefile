@@ -22,7 +22,7 @@ ifeq ($(D),1)
 DEBUG=1
 endif
 
-# LUA + GSL
+# LUA + GSL source
 INCDIR = -I/usr/include -I/usr/include/lua$(LUA_V)
 LIBDIR = -L/usr/lib
 LIBS = -lpng
@@ -102,12 +102,12 @@ override LDFLAGS =
 
 ########################################################################
 build: $(OBJS) $(CPPOBJS)
-
-install uninstall:
 	$(CXX) -shared -o $(TARGET).so $(AOJ) $(LIBDIR) $(LDFLAGS) $(LIBS)
 
+install uninstall:
+
 clean:
-	rm -f $(TARGET).symbols $(TARGET).so 2> /dev/null
+	rm -f $(TARGET).symbols $(TARGET).o $(TARGET).so 2> /dev/null
 
 symbols: build
 	@objdump -T $(TARGET).so > $(TARGET).symbols
